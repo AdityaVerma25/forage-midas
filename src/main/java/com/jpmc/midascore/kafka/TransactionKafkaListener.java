@@ -1,18 +1,24 @@
 package com.jpmc.midascore.kafka;
 
-import com.jpmc.midascore.foundation.Transaction;   // ✅ adjust if Transaction is in different package
+import com.jpmc.midascore.foundation.Transaction;
+import com.jpmc.midascore.service.TransactionService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TransactionKafkaListener {
 
+    private final TransactionService transactionService;
+
+    public TransactionKafkaListener(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     @KafkaListener(
             topics = "${general.kafka-topic}",
             groupId = "midas-core"
     )
     public void receive(Transaction transaction) {
-        // ✅ Put breakpoint here to record first 4 transactions
-        System.out.println("Received transaction amount: " + transaction.getAmount());
+        transactionService.process(transaction);
     }
 }
